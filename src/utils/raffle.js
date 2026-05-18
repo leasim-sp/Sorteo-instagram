@@ -47,10 +47,12 @@ function parseAuthor(line) {
   return match ? match[0].toLowerCase() : null;
 }
 
+const ORGANIZERS = new Set(['@indies_calvos', '@leasim_sp', '@davidgg87'])
+
 /**
  * Parse raw pasted text into comment objects.
  * A comment is valid ONLY when it mentions at least one user
- * other than the commenter themselves.
+ * other than the commenter themselves, and the commenter is not an organizer.
  */
 export function parseComments(raw) {
   return raw
@@ -63,16 +65,20 @@ export function parseComments(raw) {
       const otherMentions = allMentions.filter(
         (m) => m.toLowerCase() !== author,
       );
-      const valid = otherMentions.length > 0;
+      const isOrganizer = author !== null && ORGANIZERS.has(author);
+      const valid = !isOrganizer && otherMentions.length > 0;
+      const invalidReason = isOrganizer
+        ? 'Organizador — no puede participar'
+        : valid ? null : 'No menciona a otro usuario';
       return {
         id: idx,
         original: line,
-        author,                    // commenter's own handle, lowercased
-        mentions: allMentions,     // every @handle in the line
-        otherMentions,             // @handles that are NOT the commenter
+        author,
+        mentions: allMentions,
+        otherMentions,
         valid,
-        invalidReason: valid ? null : 'No menciona a otro usuario',
-        included: true,
+        invalidReason,
+        included: !isOrganizer,
       };
     });
 }
