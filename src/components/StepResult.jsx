@@ -145,11 +145,11 @@ function WinnerCard({ winner, position, visible }) {
       <div className={styles.winnerMedal}>{medal}</div>
       <div className={styles.winnerInfo}>
         <p className={styles.winnerName}>
-          {winner.mentions[0] || winner.original}
+          {winner.author || winner.original}
         </p>
-        {winner.mentions.length > 1 && (
+        {winner.otherMentions?.length > 0 && (
           <p className={styles.winnerExtra}>
-            también mencionó: {winner.mentions.slice(1).join(', ')}
+            etiquetó a: {winner.otherMentions.join(', ')}
           </p>
         )}
         <p className={styles.winnerComment}>{winner.original}</p>
@@ -190,7 +190,7 @@ function SlotReel({ items }) {
       {displayItems.map((item, i) => (
         <div key={i} className={styles.reelItem}>
           <span className={styles.reelAt}>
-            {item.mentions[0] || item.original.substring(0, 20)}
+            {item.author || item.original.substring(0, 20)}
           </span>
         </div>
       ))}

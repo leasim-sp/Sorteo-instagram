@@ -16,7 +16,7 @@ export function downloadCertificate({ winners, seed, numericSeed, timestamp, tot
       (w, i) => `
       <tr>
         <td class="rank">#${i + 1}</td>
-        <td class="winner-name">${escapeHtml(w.mentions[0] || w.original)}</td>
+        <td class="winner-name">${escapeHtml(w.author || w.original)}</td>
         <td class="comment">${escapeHtml(w.original)}</td>
       </tr>`
     )

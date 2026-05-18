@@ -37,8 +37,8 @@ export default function StepFilter({ comments, onNext, onBack }) {
       <div className={styles.header}>
         <h1 className={styles.title}>Filtrar Participantes</h1>
         <p className={styles.subtitle}>
-          Solo los comentarios con <strong>@mención</strong> participan en el sorteo.
-          Puedes excluir manualmente cualquier comentario.
+          Solo los comentarios que mencionan a <strong>otro usuario</strong> participan en el sorteo.
+          Comentarios sin mención ajena quedan excluidos automáticamente.
         </p>
       </div>
 
@@ -55,7 +55,7 @@ export default function StepFilter({ comments, onNext, onBack }) {
             <circle cx="7" cy="7" r="6.5" stroke="currentColor"/>
             <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
-          <span><strong>{invalidCount}</strong> sin @mención</span>
+          <span><strong>{invalidCount}</strong> sin mención ajena</span>
         </div>
         <div className={`${styles.badge} ${styles.badgeBlue}`}>
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -117,13 +117,16 @@ export default function StepFilter({ comments, onNext, onBack }) {
             </div>
 
             <div className={styles.rowContent}>
-              <p className={styles.rowText}>{highlightAt(c.original)}</p>
-              {c.mentions.length > 0 && (
+              <p className={styles.rowText}>{highlightAt(c.original, c.author)}</p>
+              {c.valid && c.otherMentions.length > 0 && (
                 <div className={styles.rowMentions}>
-                  {c.mentions.map((m) => (
+                  {c.otherMentions.map((m) => (
                     <span key={m} className={styles.mentionTag}>{m}</span>
                   ))}
                 </div>
+              )}
+              {!c.valid && c.invalidReason && (
+                <p className={styles.invalidReason}>{c.invalidReason}</p>
               )}
             </div>
 
@@ -162,13 +165,21 @@ export default function StepFilter({ comments, onNext, onBack }) {
   )
 }
 
-function highlightAt(text) {
+function highlightAt(text, author) {
   const parts = text.split(/(@[\w.]+)/g)
-  return parts.map((part, i) =>
-    part.startsWith('@') ? (
-      <strong key={i} style={{ color: 'var(--blue)', fontWeight: 700 }}>{part}</strong>
-    ) : (
-      part
+  return parts.map((part, i) => {
+    if (!part.startsWith('@')) return part
+    const isAuthor = author && part.toLowerCase() === author
+    return (
+      <strong
+        key={i}
+        style={{
+          color: isAuthor ? 'var(--gray-400)' : 'var(--blue)',
+          fontWeight: 700,
+        }}
+      >
+        {part}
+      </strong>
     )
-  )
+  })
 }

@@ -35,19 +35,46 @@ export function extractMentions(text) {
   return matches ? [...new Set(matches)] : [];
 }
 
-/** Parse raw pasted text into comment objects */
+/**
+ * Derive the commenter's own handle from a line.
+ * Supports "@usuario: texto" (colon-separated) and "@usuario texto" formats.
+ * Returns the handle lowercased, or null if none found.
+ */
+function parseAuthor(line) {
+  const colonIdx = line.indexOf(':');
+  const scope = colonIdx > 0 ? line.slice(0, colonIdx) : line;
+  const match = scope.match(/@[\w.]+/);
+  return match ? match[0].toLowerCase() : null;
+}
+
+/**
+ * Parse raw pasted text into comment objects.
+ * A comment is valid ONLY when it mentions at least one user
+ * other than the commenter themselves.
+ */
 export function parseComments(raw) {
   return raw
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
-    .map((line, idx) => ({
-      id: idx,
-      original: line,
-      mentions: extractMentions(line),
-      valid: extractMentions(line).length > 0,
-      included: true,
-    }));
+    .map((line, idx) => {
+      const allMentions = extractMentions(line);
+      const author = parseAuthor(line);
+      const otherMentions = allMentions.filter(
+        (m) => m.toLowerCase() !== author,
+      );
+      const valid = otherMentions.length > 0;
+      return {
+        id: idx,
+        original: line,
+        author,                    // commenter's own handle, lowercased
+        mentions: allMentions,     // every @handle in the line
+        otherMentions,             // @handles that are NOT the commenter
+        valid,
+        invalidReason: valid ? null : 'No menciona a otro usuario',
+        included: true,
+      };
+    });
 }
 
 /** Draw winners from participant list using seed string */

@@ -2,15 +2,15 @@ import { useState, useRef } from 'react'
 import { parseComments } from '../utils/raffle'
 import styles from './StepImport.module.css'
 
-const EXAMPLE = `@maria_garcia: Qué emocionante este sorteo! Me encanta ❤️
-@carlos_rdz: Participando! Etiqueto a @ana_lopez y @pedro_mn 🔥
-@sofia.torres: Me apunto! Sigue así 🎉
-@miguel_dev: Ojalá gane, lo necesito mucho!
+const EXAMPLE = `@maria_garcia: ¡Participa @carlos_rdz, tú puedes ganar! 🎉
+@carlos_rdz: @sofia.torres y @pedro_mn apuntaos ya 🔥
+@sofia.torres: Qué emocionante este sorteo! Me encanta ❤️
+@miguel_dev: @laura_2024 deberías participar, ojalá ganemos!
 @laura_2024: Adoroooo tus contenidos 😍
-@roberto_mx: Aquí presente! Mucha suerte a todos
-@diana_beauty: Participando con todo!! 💪
-@juan_carlos22: Ya me inscribí, espero ganar 🤞
-@valeria_hdz: Compartiéndolo con mis amigos
+@roberto_mx: Enhorabuena por los 2K! Mucha suerte a todos
+@diana_beauty: @valeria_hdz mira este sorteo, participa!
+@juan_carlos22: @juan_carlos22 ya me apunté 🤞
+@valeria_hdz: @pedro_gtz y @roberto_mx a ver quién gana!
 @pedro_gtz: Contando los días para el resultado!`
 
 export default function StepImport({ onNext }) {
@@ -118,7 +118,7 @@ export default function StepImport({ onNext }) {
               </span>
             </div>
             <span className={styles.previewBadge}>
-              {loaded.filter((c) => c.valid).length} con @mención válida
+              {loaded.filter((c) => c.valid).length} mencionan a otro usuario
             </span>
           </div>
 
@@ -144,7 +144,7 @@ export default function StepImport({ onNext }) {
                   {c.valid ? (
                     <span className={styles.tagValid}>válido</span>
                   ) : (
-                    <span className={styles.tagInvalid}>sin @</span>
+                    <span className={styles.tagInvalid}>sin mención</span>
                   )}
                 </li>
               )
