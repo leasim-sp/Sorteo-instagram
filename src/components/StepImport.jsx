@@ -78,63 +78,25 @@ export default function StepImport({ onNext }) {
     elapsedRef.current = setInterval(() => setElapsed((s) => s + 1), 1000)
 
     try {
-      // 1. Start async run
-      const startRes = await fetch(
-        `https://api.apify.com/v2/acts/apify~instagram-comment-scraper/runs?token=${encodeURIComponent(token)}`,
+      const res = await fetch(
+        `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${encodeURIComponent(token)}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             directUrls: [url],
-            resultsLimit: 200,
-            maxRequestRetries: 3,
+            resultsType: 'comments',
+            resultsLimit: 500,
           }),
         }
       )
 
-      if (!startRes.ok) {
-        const text = await startRes.text().catch(() => '')
-        throw new Error(`Error al iniciar el run (${startRes.status})${text ? `: ${text.slice(0, 120)}` : ''}`)
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`Error ${res.status}${text ? `: ${text.slice(0, 120)}` : ''}`)
       }
 
-      const startData = await startRes.json()
-      const runId = startData?.data?.id
-      const datasetId = startData?.data?.defaultDatasetId
-      if (!runId) throw new Error('Apify no devolvió un ID de run. Verifica tu API key.')
-
-      // 2. Poll until finished (SUCCEEDED / FAILED / ABORTED / TIMED-OUT)
-      const TERMINAL = new Set(['SUCCEEDED', 'FAILED', 'ABORTED', 'TIMED-OUT'])
-      const POLL_INTERVAL = 4000   // 4 s between checks
-      const MAX_WAIT_MS   = 5 * 60 * 1000  // 5 min hard cap
-
-      const started = Date.now()
-      let status = 'RUNNING'
-
-      while (!TERMINAL.has(status)) {
-        if (Date.now() - started > MAX_WAIT_MS) {
-          throw new Error('El sorteo tardó más de 5 minutos. Prueba con una URL diferente o vuelve a intentarlo.')
-        }
-        await new Promise((r) => setTimeout(r, POLL_INTERVAL))
-
-        const pollRes = await fetch(
-          `https://api.apify.com/v2/actor-runs/${runId}?token=${encodeURIComponent(token)}`
-        )
-        if (!pollRes.ok) throw new Error(`Error consultando estado del run (${pollRes.status})`)
-        const pollData = await pollRes.json()
-        status = pollData?.data?.status ?? 'RUNNING'
-      }
-
-      if (status !== 'SUCCEEDED') {
-        throw new Error(`El run de Apify terminó con estado: ${status}. Revisa tu cuenta de Apify.`)
-      }
-
-      // 3. Fetch dataset items
-      const itemsRes = await fetch(
-        `https://api.apify.com/v2/datasets/${datasetId}/items?token=${encodeURIComponent(token)}&format=json&clean=true`
-      )
-      if (!itemsRes.ok) throw new Error(`Error descargando resultados (${itemsRes.status})`)
-
-      const data = await itemsRes.json()
+      const data = await res.json()
       if (!Array.isArray(data) || data.length === 0) {
         throw new Error('Apify no devolvió comentarios. Verifica la URL o los permisos del post.')
       }
