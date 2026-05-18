@@ -1,7 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   animation: fadeInUp 0.4s ease both;
 }
 
@@ -10,6 +10,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Header */
 .header { text-align: center; }
 
 .title {
@@ -24,24 +25,41 @@
   line-height: 1.6;
 }
 
-.card {
-  background: var(--white);
+.formatCode {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  background: #f0f4fb;
+  color: var(--blue);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid #dbeafe;
+}
+
+/* Input section */
+.inputSection {
   border: 1.5px solid var(--gray-200);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: border-color 0.2s;
 }
 
-.cardHeader {
+.inputSection:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(17, 89, 173, 0.08);
+}
+
+.inputHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 12px 16px;
   background: var(--gray-50);
   border-bottom: 1px solid var(--gray-200);
 }
 
-.cardLabel {
+.inputLabel {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -67,87 +85,208 @@
 
 .textarea {
   width: 100%;
-  min-height: 280px;
-  padding: 16px 18px;
+  min-height: 220px;
+  max-height: 340px;
+  padding: 14px 16px;
   border: none;
   outline: none;
   resize: vertical;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--black);
   background: white;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .textarea::placeholder {
   color: var(--gray-400);
+  font-style: italic;
 }
 
-.error {
-  margin: 0 18px 12px;
-  padding: 8px 12px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--red);
-}
-
-.stats {
+.inputFooter {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 24px;
-  padding: 16px 18px;
+  justify-content: space-between;
+  padding: 8px 16px;
   background: var(--gray-50);
   border-top: 1px solid var(--gray-200);
+  min-height: 36px;
+  gap: 12px;
 }
 
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.statNum {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  color: var(--blue);
-  line-height: 1;
-}
-
-.statLabel {
-  font-size: 11px;
-  color: var(--gray-600);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.lineCount {
+  font-size: 12px;
+  color: var(--gray-400);
   font-weight: 500;
 }
 
-.statDivider {
-  width: 1px;
-  height: 36px;
-  background: var(--gray-200);
-}
-
-.hint {
+.errorInline {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #1d4ed8;
-  line-height: 1.5;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--red);
+  font-weight: 600;
 }
 
-.hint svg {
+/* Load button */
+.loadBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--black);
+  color: var(--yellow);
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.loadBtn:hover:not(:disabled) {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(0,0,0,0.25);
+}
+
+.loadBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Preview */
+.preview {
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: fadeInUp 0.35s ease both;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--blue);
+  gap: 12px;
+}
+
+.counter {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.counterNum {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 38px;
+  color: white;
+  line-height: 1;
+}
+
+.counterLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+}
+
+.previewBadge {
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--yellow);
+  color: var(--black);
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.list {
+  list-style: none;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--gray-100);
+  transition: background 0.15s;
+}
+
+.item:last-child { border-bottom: none; }
+.item:hover { background: var(--gray-50); }
+
+.itemInvalid {
+  opacity: 0.5;
+}
+
+.itemIndex {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  min-width: 22px;
+  text-align: right;
   flex-shrink: 0;
-  margin-top: 1px;
 }
 
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.itemUser {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--blue);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.itemText {
+  font-size: 13px;
+  color: var(--gray-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tagValid {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.tagInvalid {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-400);
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+/* Next button */
 .nextBtn {
   display: flex;
   align-items: center;
@@ -160,6 +299,7 @@
   font-size: 16px;
   font-weight: 700;
   border-radius: 10px;
+  border: none;
   transition: all 0.2s;
   letter-spacing: 0.02em;
 }
@@ -171,6 +311,6 @@
 }
 
 .nextBtn:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
