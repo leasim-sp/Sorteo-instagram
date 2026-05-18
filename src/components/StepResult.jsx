@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { downloadCertificate } from '../utils/certificate'
 import styles from './StepResult.module.css'
 
 // Slot geometry
@@ -43,15 +42,24 @@ export default function StepResult({ result, participants, onReset }) {
     return () => clearTimeout(timerRef.current)
   }, [phase, prizeIdx])
 
-  function handleDownload() {
-    downloadCertificate({
-      winners,
-      seed,
-      numericSeed,
-      timestamp,
-      totalParticipants,
-      numWinners: winners.length,
-    })
+  const [downloading, setDownloading] = useState(false)
+
+  async function handleDownload() {
+    setDownloading(true)
+    try {
+      const { downloadCertificate } = await import('../utils/certificate')
+      downloadCertificate({
+        winners,
+        seed,
+        numericSeed,
+        timestamp,
+        totalParticipants,
+        numWinners: winners.length,
+        participants,
+      })
+    } finally {
+      setDownloading(false)
+    }
   }
 
   const prizeLabel = winners.length > 1
@@ -152,12 +160,18 @@ export default function StepResult({ result, participants, onReset }) {
           </div>
 
           <div className={styles.actions}>
-            <button className={styles.downloadBtn} onClick={handleDownload}>
-              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <path d="M8.5 2v8M5 7.5l3.5 3.5L12 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 13h13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-              Descargar Acta
+            <button className={styles.downloadBtn} onClick={handleDownload} disabled={downloading}>
+              {downloading ? (
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+                  <circle cx="8.5" cy="8.5" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="10"/>
+                </svg>
+              ) : (
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                  <path d="M8.5 2v8M5 7.5l3.5 3.5L12 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 13h13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              )}
+              {downloading ? 'Generando PDF…' : 'Descargar Acta PDF'}
             </button>
             <button className={styles.resetBtn} onClick={onReset}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
