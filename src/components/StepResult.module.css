@@ -1,0 +1,288 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  animation: fadeInUp 0.4s ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header { text-align: center; }
+
+.title {
+  font-size: 58px;
+  color: var(--blue);
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+
+/* Slot Machine */
+.slotMachine {
+  position: relative;
+  height: 168px;
+  border: 3px solid var(--blue);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--black);
+}
+
+.slotOverlayTop,
+.slotOverlayBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 56px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.slotOverlayTop {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(17,17,17,0.95), transparent);
+}
+
+.slotOverlayBottom {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(17,17,17,0.95), transparent);
+}
+
+.slotTrack {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.reel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
+.reelItem {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.reelAt {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: 0.04em;
+}
+
+/* Winner Cards */
+.winnersGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.winnerCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: white;
+  border: 2px solid var(--gray-200);
+  border-radius: 12px;
+  opacity: 0;
+  transform: scale(0.85) translateY(20px);
+  transition: none;
+}
+
+.winnerCardVisible {
+  animation: winnerReveal 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  border-color: var(--yellow);
+  box-shadow: 0 4px 20px rgba(232, 197, 71, 0.25);
+}
+
+@keyframes winnerReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(30px);
+  }
+  60% {
+    transform: scale(1.04) translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.winnerMedal {
+  font-size: 32px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.winnerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.winnerName {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  color: var(--blue);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.winnerExtra {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-top: 2px;
+}
+
+.winnerComment {
+  font-size: 12px;
+  color: var(--gray-600);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.winnerRank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+/* Seed box */
+.seedBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--black);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.seedLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray-400);
+  white-space: nowrap;
+}
+
+.seedValue {
+  font-family: 'Courier New', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--yellow);
+  letter-spacing: 0.06em;
+  word-break: break-all;
+}
+
+.seedNumeric {
+  font-size: 12px;
+  color: var(--gray-400);
+  white-space: nowrap;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.downloadBtn {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 24px;
+  background: var(--blue);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.downloadBtn:hover {
+  background: var(--blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(17, 89, 173, 0.35);
+}
+
+.resetBtn {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 24px;
+  background: white;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-600);
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.resetBtn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* Confetti */
+.confettiContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+}
+
+.confettiPiece {
+  position: absolute;
+  top: -20px;
+  animation: confettiFall linear both;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
