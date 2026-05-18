@@ -1,66 +1,105 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 18px;
   position: relative;
   animation: fadeInUp 0.4s ease both;
 }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Header ── */
 .header { text-align: center; }
 
-.title {
-  font-size: 58px;
+.prizeLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gray-400);
+  margin-bottom: 4px;
+}
+
+.titleSpin {
+  font-size: 52px;
+  color: var(--blue);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
+.titleReveal {
+  font-size: 52px;
+  color: var(--blue);
+  animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.titleDone {
+  font-size: 52px;
   color: var(--blue);
 }
 
 .subtitle {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 15px;
   color: var(--gray-600);
-  line-height: 1.6;
 }
 
-/* Slot Machine */
-.slotMachine {
+/* ── Slot wrapper ── */
+.slotWrapper {
   position: relative;
-  height: 168px;
-  border: 3px solid var(--blue);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--black);
 }
 
-.slotOverlayTop,
-.slotOverlayBottom {
+.slotViewport {
+  height: 340px;          /* VISIBLE (5) × ITEM_H (68) */
+  overflow: hidden;
+  position: relative;
+  background: var(--black);
+  border-radius: 14px;
+  border: 2px solid #222;
+}
+
+/* Top and bottom fade */
+.slotFadeTop,
+.slotFadeBottom {
   position: absolute;
   left: 0;
   right: 0;
-  height: 56px;
+  height: 100px;
   z-index: 2;
   pointer-events: none;
 }
 
-.slotOverlayTop {
-  top: 0;
-  background: linear-gradient(to bottom, rgba(17,17,17,0.95), transparent);
-}
+.slotFadeTop    { top: 0;    background: linear-gradient(to bottom, #111 0%, transparent 100%); }
+.slotFadeBottom { bottom: 0; background: linear-gradient(to top,   #111 0%, transparent 100%); }
 
-.slotOverlayBottom {
-  bottom: 0;
-  background: linear-gradient(to top, rgba(17,17,17,0.95), transparent);
-}
-
-.slotTrack {
+/* Centre highlight strip */
+.slotHighlight {
   position: absolute;
-  inset: 0;
-  overflow: hidden;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 68px;
+  transform: translateY(-50%);
+  background: rgba(232, 197, 71, 0.07);
+  border-top:    1.5px solid rgba(232, 197, 71, 0.35);
+  border-bottom: 1.5px solid rgba(232, 197, 71, 0.35);
+  z-index: 1;
+  pointer-events: none;
 }
 
+/* The reel itself — JS controls transform */
 .reel {
   position: absolute;
   top: 0;
@@ -70,71 +109,159 @@
 }
 
 .reelItem {
-  height: 56px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
-.reelAt {
+.reelHandle {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--yellow);
   letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0 20px;
 }
 
-/* Winner Cards */
-.winnersGrid {
+/* Seed mini */
+.seedMini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--gray-400);
+}
+
+.seedMini code {
+  font-family: 'Courier New', monospace;
+  font-size: 10.5px;
+  color: var(--gray-400);
+  word-break: break-all;
+}
+
+.seedMini svg { flex-shrink: 0; }
+
+/* ── Previously revealed winners (compact) ── */
+.prevWinners {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
+  animation: fadeInUp 0.3s ease both;
+}
+
+.compact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: white;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+}
+
+.compactMedal { font-size: 18px; flex-shrink: 0; }
+
+.compactName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compactLabel {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--gray-400);
+  flex-shrink: 0;
+}
+
+/* ── Winner reveal (current prize, revealed phase) ── */
+.reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 20px;
+  background: var(--black);
+  border-radius: 16px;
+  border: 2px solid var(--yellow);
+  box-shadow: 0 0 32px rgba(232, 197, 71, 0.25), 0 0 64px rgba(232, 197, 71, 0.1);
+  animation: revealIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes revealIn {
+  from { opacity: 0; transform: scale(0.75) translateY(20px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.revealMedal { font-size: 44px; line-height: 1; }
+
+.revealName {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 46px;
+  color: var(--yellow);
+  letter-spacing: 0.06em;
+  text-align: center;
+  line-height: 1;
+}
+
+.revealSub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+}
+
+.revealComment {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  font-style: italic;
+  max-width: 90%;
+}
+
+.nextHint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-400);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ── Done: winner cards ── */
+.winnersList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .winnerCard {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
+  gap: 14px;
+  padding: 16px 18px;
   background: white;
-  border: 2px solid var(--gray-200);
+  border: 2px solid var(--yellow);
   border-radius: 12px;
-  opacity: 0;
-  transform: scale(0.85) translateY(20px);
-  transition: none;
+  box-shadow: 0 3px 14px rgba(232, 197, 71, 0.2);
+  animation: winnerIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-.winnerCardVisible {
-  animation: winnerReveal 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  border-color: var(--yellow);
-  box-shadow: 0 4px 20px rgba(232, 197, 71, 0.25);
+@keyframes winnerIn {
+  from { opacity: 0; transform: scale(0.85) translateY(16px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
-@keyframes winnerReveal {
-  0% {
-    opacity: 0;
-    transform: scale(0.7) translateY(30px);
-  }
-  60% {
-    transform: scale(1.04) translateY(-4px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
+.winnerMedal { font-size: 30px; flex-shrink: 0; line-height: 1; }
 
-.winnerMedal {
-  font-size: 32px;
-  flex-shrink: 0;
-  line-height: 1;
-}
-
-.winnerInfo {
-  flex: 1;
-  min-width: 0;
-}
+.winnerInfo { flex: 1; min-width: 0; }
 
 .winnerName {
   font-family: 'Bebas Neue', sans-serif;
@@ -144,7 +271,7 @@
   line-height: 1.1;
 }
 
-.winnerExtra {
+.winnerSub {
   font-size: 12px;
   color: var(--gray-400);
   margin-top: 2px;
@@ -159,71 +286,68 @@
   text-overflow: ellipsis;
 }
 
-.winnerRank {
+.winnerPos {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 20px;
   color: var(--gray-400);
   flex-shrink: 0;
 }
 
-/* Seed box */
+/* ── Seed box (done state) ── */
 .seedBox {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   background: var(--black);
   border-radius: 10px;
-  padding: 14px 18px;
+  padding: 13px 16px;
 }
 
-.seedLabel {
+.seedBoxLabel {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--gray-400);
+  color: rgba(255,255,255,0.35);
   white-space: nowrap;
 }
 
-.seedValue {
+.seedBoxValue {
   font-family: 'Courier New', monospace;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--yellow);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   word-break: break-all;
 }
 
-.seedNumeric {
-  font-size: 12px;
-  color: var(--gray-400);
+.seedBoxHash {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
   white-space: nowrap;
 }
 
-/* Actions */
-.actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+/* ── Actions ── */
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
 .downloadBtn {
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 15px 24px;
+  gap: 9px;
+  padding: 14px 22px;
   background: var(--blue);
   color: white;
   font-size: 15px;
   font-weight: 700;
   border-radius: 10px;
+  border: none;
   transition: all 0.2s;
 }
 
@@ -239,10 +363,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 15px 24px;
+  gap: 9px;
+  padding: 14px 22px;
   background: white;
-  border: 2px solid var(--gray-200);
+  border: 1.5px solid var(--gray-200);
   color: var(--gray-600);
   font-size: 15px;
   font-weight: 700;
@@ -250,18 +374,12 @@
   transition: all 0.2s;
 }
 
-.resetBtn:hover {
-  border-color: var(--blue);
-  color: var(--blue);
-}
+.resetBtn:hover { border-color: var(--blue); color: var(--blue); }
 
-/* Confetti */
-.confettiContainer {
+/* ── Confetti ── */
+.confetti {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   pointer-events: none;
   z-index: 999;
   overflow: hidden;
@@ -270,19 +388,11 @@
 .confettiPiece {
   position: absolute;
   top: -20px;
-  animation: confettiFall linear both;
+  animation: fall linear both;
 }
 
-@keyframes confettiFall {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(110vh) rotate(720deg);
-    opacity: 0;
-  }
+@keyframes fall {
+  0%   { transform: translateY(0)     rotate(0deg);   opacity: 1; }
+  80%  {                                               opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }

@@ -91,13 +91,15 @@ export function drawWinners(participants, count, seedStr) {
   };
 }
 
-/** Generate a suggested seed: date + random hex */
-export function generateSeed() {
+/**
+ * Generate a public seed tied to the exact moment and pool size.
+ * Format: SORTEO-YYYYMMDD-HHMMSS-N{count}
+ * This makes the seed self-documenting and fully auditable.
+ */
+export function generateSeed(participantCount) {
   const now = new Date();
-  const date = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-  const rand = Math.floor(Math.random() * 0xffff)
-    .toString(16)
-    .toUpperCase()
-    .padStart(4, '0');
-  return `SORTEO-${date}-${rand}`;
+  const p = (n) => String(n).padStart(2, '0');
+  const date = `${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}`;
+  const time = `${p(now.getHours())}${p(now.getMinutes())}${p(now.getSeconds())}`;
+  return `SORTEO-${date}-${time}-N${participantCount}`;
 }
