@@ -14,7 +14,7 @@ const EXAMPLE = `@maria_garcia: ¡Participa @carlos_rdz, tú puedes ganar! 🎉
 @pedro_gtz: Contando los días para el resultado!`
 
 export default function StepImport({ onNext }) {
-  const [mode, setMode] = useState('manual') // 'manual' | 'apify'
+  const [mode, setMode] = useState('manual') // 'manual' | 'apify' | 'file'
 
   // Manual mode state
   const [raw, setRaw] = useState('')
@@ -31,17 +31,18 @@ export default function StepImport({ onNext }) {
   const [elapsed, setElapsed] = useState(0)
   const elapsedRef = useRef(null)
 
+  // File mode state
+  const [dragOver, setDragOver] = useState(false)
+  const [fileError, setFileError] = useState('')
+  const [fileName, setFileName] = useState('')
+  const fileInputRef = useRef(null)
+
+  // ── Manual helpers ────────────────────────────────────────────
   function handleLoad() {
     const trimmed = raw.trim()
-    if (!trimmed) {
-      setError('Pega al menos un comentario antes de cargar.')
-      return
-    }
+    if (!trimmed) { setError('Pega al menos un comentario antes de cargar.'); return }
     const parsed = parseComments(raw)
-    if (parsed.length === 0) {
-      setError('No se detectaron comentarios válidos. Revisa el formato.')
-      return
-    }
+    if (parsed.length === 0) { setError('No se detectaron comentarios válidos. Revisa el formato.'); return }
     setLoaded(parsed)
     setError('')
     setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60)
@@ -59,10 +60,43 @@ export default function StepImport({ onNext }) {
     setError('')
   }
 
-  function handleNext() {
-    onNext(loaded)
+  // ── File helpers ──────────────────────────────────────────────
+  function processFile(file) {
+    if (!file) return
+    const ext = file.name.split('.').pop().toLowerCase()
+    if (!['txt', 'csv'].includes(ext)) {
+      setFileError('Solo se admiten archivos .txt o .csv')
+      return
+    }
+    setFileError('')
+    setFileName(file.name)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const text = e.target.result
+      const parsed = parseComments(text)
+      if (parsed.length === 0) {
+        setFileError('No se encontraron comentarios en el archivo. Revisa que tenga el formato @usuario: texto.')
+        setLoaded(null)
+        return
+      }
+      setLoaded(parsed)
+      setTimeout(() => previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60)
+    }
+    reader.readAsText(file, 'UTF-8')
   }
 
+  function handleFileInput(e) {
+    processFile(e.target.files?.[0])
+    e.target.value = ''
+  }
+
+  function handleDrop(e) {
+    e.preventDefault()
+    setDragOver(false)
+    processFile(e.dataTransfer.files?.[0])
+  }
+
+  // ── Apify helper ──────────────────────────────────────────────
   async function fetchFromApify() {
     const url = instagramUrl.trim()
     const token = apifyToken.trim()
@@ -127,8 +161,14 @@ export default function StepImport({ onNext }) {
   function switchMode(m) {
     setMode(m)
     setApifyError('')
+    setFileError('')
+    setFileName('')
     setError('')
     setLoaded(null)
+  }
+
+  function handleNext() {
+    onNext(loaded)
   }
 
   return (
@@ -150,7 +190,17 @@ export default function StepImport({ onNext }) {
             <rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.4"/>
             <path d="M5 8h6M8 5v6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
           </svg>
-          Desde Instagram (Apify)
+          Desde Instagram
+        </button>
+        <button
+          className={`${styles.modeBtn} ${mode === 'file' ? styles.modeBtnActive : ''}`}
+          onClick={() => switchMode('file')}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M9 2H4a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.5L9 2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+            <path d="M9 2v4.5H13.5" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+          </svg>
+          Archivo CSV/TXT
         </button>
         <button
           className={`${styles.modeBtn} ${mode === 'manual' ? styles.modeBtnActive : ''}`}
@@ -160,7 +210,7 @@ export default function StepImport({ onNext }) {
             <rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
             <path d="M5 5.5h6M5 8h6M5 10.5h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
           </svg>
-          Manual (pegar texto)
+          Pegar texto
         </button>
       </div>
 
@@ -267,6 +317,66 @@ export default function StepImport({ onNext }) {
         </div>
       )}
 
+      {/* ── File mode ── */}
+      {mode === 'file' && (
+        <div className={styles.filePanel}>
+          <p className={styles.fileHint}>
+            Sube un archivo <code className={styles.formatCode}>.txt</code> o <code className={styles.formatCode}>.csv</code> con los comentarios exportados,
+            un comentario por línea con el formato <code className={styles.formatCode}>@usuario: texto</code>
+          </p>
+
+          {/* Drop zone */}
+          <div
+            className={`${styles.dropZone} ${dragOver ? styles.dropZoneOver : ''} ${fileName ? styles.dropZoneDone : ''}`}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+            aria-label="Zona de carga de archivo"
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".txt,.csv"
+              className={styles.fileInputHidden}
+              onChange={handleFileInput}
+            />
+            {fileName ? (
+              <>
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className={styles.dropIcon}>
+                  <circle cx="16" cy="16" r="14" fill="#f0fdf4" stroke="#bbf7d0" strokeWidth="1.5"/>
+                  <path d="M10 16.5l4 4 8-8" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <p className={styles.dropFileName}>{fileName}</p>
+                <p className={styles.dropSubtext}>Haz clic para cambiar el archivo</p>
+              </>
+            ) : (
+              <>
+                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" className={styles.dropIcon}>
+                  <path d="M18 24V12M12 18l6-6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="2" y="2" width="32" height="32" rx="8" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3"/>
+                </svg>
+                <p className={styles.dropTitle}>Arrastra tu archivo aquí</p>
+                <p className={styles.dropSubtext}>o haz clic para seleccionarlo · .txt o .csv</p>
+              </>
+            )}
+          </div>
+
+          {fileError && (
+            <div className={styles.apifyError}>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.4"/>
+                <path d="M7 4.5v3M7 9.5v.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+              {fileError}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Manual mode ── */}
       {mode === 'manual' && (
         <>
@@ -316,7 +426,7 @@ export default function StepImport({ onNext }) {
         </>
       )}
 
-      {/* Vista previa — shown in both modes after load */}
+      {/* Vista previa — shown in all modes after load */}
       {loaded && (
         <div className={styles.preview} ref={previewRef}>
           <div className={styles.previewHeader}>
